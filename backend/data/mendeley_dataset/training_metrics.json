@@ -1,0 +1,177 @@
+{
+  "status": "calibrated",
+  "title": "Universal Multi-Subject & Multi-Corpus ASAG Benchmark Calibration",
+  "dataset_type": "Universal Multi-Subject & Multi-Corpus ASAG Benchmark",
+  "total_evaluations": 3300,
+  "total_students": 50,
+  "students_cohort_size": 50,
+  "students_count": 50,
+  "total_questions_evaluated": 1750,
+  "asag_samples_count": 1550,
+  "subjects_covered": [
+    "Data Science",
+    "Physics",
+    "Computer Science",
+    "Chemistry",
+    "Biology",
+    "Mathematics",
+    "Humanities"
+  ],
+  "corpora_sources": [
+    "Mendeley Handwritten Exam (1,750 evaluations)",
+    "Mohler Computer Science ASAG",
+    "SciEntsBank Science (Physics, Chemistry, Biology)",
+    "ASAG2024 STEM & Humanities"
+  ],
+  "metrics": {
+    "mean_absolute_error": 0.292,
+    "root_mean_squared_error": 0.6503,
+    "accuracy_within_half_mark_pct": 83.4,
+    "pearson_correlation": 0.918,
+    "total_evaluations": 3300
+  },
+  "calibrated_weights": {
+    "cv_strategy": "5-Fold GroupKFold Non-Negative Ridge (3300 evaluations)",
+    "feature_names": [
+      "keyword_score",
+      "semantic_score",
+      "llm_rubric_ratio"
+    ],
+    "weights": [
+      0.0,
+      0.2857,
+      0.7143
+    ],
+    "keyword_weight": 0.0,
+    "semantic_weight": 0.2857,
+    "rubric_weight": 0.7143,
+    "fit_intercept": false,
+    "isotonic_knots": {
+      "x": [
+        0.0,
+        0.05,
+        0.1,
+        0.15,
+        0.2,
+        0.25,
+        0.3,
+        0.35,
+        0.4,
+        0.45,
+        0.5,
+        0.55,
+        0.6,
+        0.65,
+        0.7,
+        0.75,
+        0.8,
+        0.85,
+        0.9,
+        0.95,
+        1.0
+      ],
+      "y": [
+        0.0,
+        0.153,
+        0.1834,
+        0.1834,
+        0.1834,
+        0.1834,
+        0.1834,
+        0.1834,
+        0.4662,
+        0.5478,
+        0.6337,
+        0.7811,
+        0.7855,
+        0.8113,
+        0.9736,
+        0.979,
+        0.986,
+        0.986,
+        0.986,
+        0.986,
+        0.9977
+      ]
+    }
+  },
+  "zero_key_calibration": {
+    "cv_strategy": "5-Fold GroupKFold Autonomous Peer-Consensus",
+    "feature_names": [
+      "synthesized_key_similarity",
+      "peer_consensus_centrality",
+      "domain_term_density",
+      "derivation_completeness"
+    ],
+    "weights": [
+      0.1928,
+      0.2568,
+      0.0,
+      0.5504
+    ],
+    "metrics": {
+      "mean_absolute_error": 0.3566,
+      "root_mean_squared_error": 0.4916,
+      "accuracy_within_half_mark_pct": 88.9,
+      "pearson_correlation": 0.9533
+    },
+    "isotonic_knots": {
+      "x": [
+        0.0,
+        0.05,
+        0.1,
+        0.15,
+        0.2,
+        0.25,
+        0.3,
+        0.35,
+        0.4,
+        0.45,
+        0.5,
+        0.55,
+        0.6,
+        0.65,
+        0.7,
+        0.75,
+        0.8,
+        0.85,
+        0.9,
+        0.95,
+        1.0
+      ],
+      "y": [
+        0.0,
+        0.071,
+        0.1936,
+        0.2851,
+        0.4426,
+        0.4426,
+        0.4828,
+        0.5483,
+        0.6644,
+        0.7356,
+        0.8762,
+        0.8762,
+        0.9328,
+        0.9658,
+        0.976,
+        0.976,
+        0.976,
+        0.976,
+        0.995,
+        0.995,
+        0.995
+      ]
+    }
+  },
+  "domain_calibration_offsets": {
+    "STEM_Formula": {
+      "weight_boost_formula": 0.15,
+      "weight_boost_semantic": -0.05
+    },
+    "Conceptual_Theory": {
+      "weight_boost_formula": -0.1,
+      "weight_boost_semantic": 0.1
+    }
+  }
+}

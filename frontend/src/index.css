@@ -1,0 +1,574 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes fadeInSoft {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-soft {
+  animation: fadeInSoft 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animation-delay-100 {
+  animation-delay: 100ms;
+}
+.animation-delay-200 {
+  animation-delay: 200ms;
+}
+.animation-delay-300 {
+  animation-delay: 300ms;
+}
+.animation-delay-400 {
+  animation-delay: 400ms;
+}
+
+@keyframes scanLaser {
+  0% {
+    top: 0%;
+    opacity: 0.8;
+  }
+  50% {
+    top: 96%;
+    opacity: 1;
+  }
+  100% {
+    top: 0%;
+    opacity: 0.8;
+  }
+}
+
+.animate-scan-laser {
+  animation: scanLaser 2.2s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(212, 175, 106, 0.3), inset 0 0 10px rgba(212, 175, 106, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(212, 175, 106, 0.7), inset 0 0 20px rgba(212, 175, 106, 0.3);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+/* 3D Book Page Flip Animation */
+@keyframes flipPage3D {
+  0% {
+    transform: rotateY(0deg);
+  }
+  50% {
+    transform: rotateY(-180deg);
+  }
+  100% {
+    transform: rotateY(0deg);
+  }
+}
+
+.animate-flip-page {
+  animation: flipPage3D 3s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+}
+
+/* Dynamic OCR Laser Sweep Animation */
+@keyframes ocrLaserSweep {
+  0% {
+    top: 0%;
+    opacity: 0.75;
+  }
+  50% {
+    top: 95%;
+    opacity: 1;
+  }
+  100% {
+    top: 0%;
+    opacity: 0.75;
+  }
+}
+
+.animate-ocr-laser {
+  animation: ocrLaserSweep 2.2s ease-in-out infinite;
+}
+
+/* Gentle Floating Animation */
+@keyframes floatGentle {
+  0%, 100% {
+    transform: translateY(0px) rotateX(12deg) rotateY(-8deg);
+  }
+  50% {
+    transform: translateY(-8px) rotateX(15deg) rotateY(-5deg);
+  }
+}
+
+.animate-float-gentle {
+  animation: floatGentle 4s ease-in-out infinite;
+}
+
+/* Smooth Fade In and Slide Up */
+@keyframes fadeInSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-slide-up {
+  animation: fadeInSlideUp 0.3s ease-out forwards;
+}
+
+/* 3D Perspective Utilities */
+.perspective-1500 {
+  perspective: 1500px;
+}
+
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.transform-style-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+.origin-left {
+  transform-origin: left center;
+}
+
+.origin-right {
+  transform-origin: right center;
+}
+
+/* True 3D Open Hardcover Book Animation */
+@keyframes turnBookPage3D {
+  0% {
+    transform: rotateY(0deg);
+    box-shadow: inset 12px 0 16px rgba(0, 0, 0, 0.25), -4px 4px 10px rgba(0, 0, 0, 0.2);
+  }
+  30% {
+    box-shadow: inset 24px 0 28px rgba(0, 0, 0, 0.45), -14px 14px 22px rgba(0, 0, 0, 0.35);
+  }
+  70% {
+    box-shadow: inset -24px 0 28px rgba(0, 0, 0, 0.45), 14px 14px 22px rgba(0, 0, 0, 0.35);
+  }
+  100% {
+    transform: rotateY(-180deg);
+    box-shadow: inset -12px 0 16px rgba(0, 0, 0, 0.25), 4px 4px 10px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.animate-turn-book-page-3d {
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  animation: turnBookPage3D 1.8s cubic-bezier(0.645, 0.045, 0.355, 1) infinite;
+}
+
+@keyframes sweepBookLaser {
+  0% {
+    top: 6%;
+    opacity: 0.85;
+  }
+  50% {
+    top: 92%;
+    opacity: 1;
+  }
+  100% {
+    top: 6%;
+    opacity: 0.85;
+  }
+}
+
+.animate-sweep-book-laser {
+  animation: sweepBookLaser 2.2s ease-in-out infinite;
+}
+
+/* ========================================================================= */
+/* 3D HARDCOVER EXAM BOOKLET PAGE-TURNING ANIMATION (Perspective 1600px)     */
+/* ========================================================================= */
+.booklet-perspective-1600,
+.booklet-perspective-1400 {
+  perspective: 1600px;
+}
+
+.booklet-3d-scene {
+  transform-style: preserve-3d;
+  transform: rotateX(15deg) rotateY(-10deg) rotateZ(1deg);
+  transition: transform 0.4s ease;
+  filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.5));
+}
+
+@keyframes parchmentPageFlip1 {
+  0% {
+    transform: rotateY(0deg);
+    box-shadow: -4px 4px 10px rgba(0, 0, 0, 0.15);
+  }
+  38%, 100% {
+    transform: rotateY(-180deg);
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);
+  }
+}
+
+@keyframes parchmentPageFlip2 {
+  0%, 18% {
+    transform: rotateY(0deg);
+    box-shadow: -4px 4px 10px rgba(0, 0, 0, 0.15);
+  }
+  58%, 100% {
+    transform: rotateY(-180deg);
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);
+  }
+}
+
+@keyframes parchmentPageFlip3 {
+  0%, 36% {
+    transform: rotateY(0deg);
+    box-shadow: -4px 4px 10px rgba(0, 0, 0, 0.15);
+  }
+  78%, 100% {
+    transform: rotateY(-180deg);
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.animate-parchment-flip-1 {
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  animation: parchmentPageFlip1 3.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+}
+
+.animate-parchment-flip-2 {
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  animation: parchmentPageFlip2 3.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+}
+
+.animate-parchment-flip-3 {
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  animation: parchmentPageFlip3 3.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+}
+
+.animate-parchment-flip-1 > *,
+.animate-parchment-flip-2 > *,
+.animate-parchment-flip-3 > * {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+@keyframes goldExamLaserSweep {
+  0% {
+    top: 4%;
+    opacity: 0.7;
+    filter: drop-shadow(0 0 6px #D8BE8B);
+  }
+  50% {
+    top: 92%;
+    opacity: 1;
+    filter: drop-shadow(0 0 14px #ffd700);
+  }
+  100% {
+    top: 4%;
+    opacity: 0.7;
+    filter: drop-shadow(0 0 6px #D8BE8B);
+  }
+}
+
+.animate-gold-exam-laser {
+  animation: goldExamLaserSweep 2.4s ease-in-out infinite;
+}
+
+/* Single Page 3D Turn Animations (Perspective 1800px) */
+@keyframes pageTurnForward3D {
+  0% {
+    transform: perspective(1800px) rotateY(35deg) scale(0.97);
+    box-shadow: -22px 14px 38px rgba(0, 0, 0, 0.45), inset 18px 0 24px rgba(0, 0, 0, 0.25);
+    opacity: 0.88;
+  }
+  100% {
+    transform: perspective(1800px) rotateY(0deg) scale(1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), inset 0 0 0 transparent;
+    opacity: 1;
+  }
+}
+
+@keyframes pageTurnBackward3D {
+  0% {
+    transform: perspective(1800px) rotateY(-35deg) scale(0.97);
+    box-shadow: 22px 14px 38px rgba(0, 0, 0, 0.45), inset -18px 0 24px rgba(0, 0, 0, 0.25);
+    opacity: 0.88;
+  }
+  100% {
+    transform: perspective(1800px) rotateY(0deg) scale(1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), inset 0 0 0 transparent;
+    opacity: 1;
+  }
+}
+
+.animate-page-turn-forward {
+  transform-origin: left center;
+  animation: pageTurnForward3D 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.animate-page-turn-backward {
+  transform-origin: right center;
+  animation: pageTurnBackward3D 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Glassmorphism Styles & Global Theme Classes */
+.theme-glass-dark {
+  background: radial-gradient(circle at 20% 0%, #1a2438 0%, #0d121c 60%, #090d14 100%);
+  color: #F8FAFC;
+}
+
+.theme-glass-light {
+  background: linear-gradient(135deg, #F1F5F9 0%, #E2E8F0 100%);
+  color: #0F172A;
+}
+
+.glass-panel-dark {
+  background: rgba(24, 33, 48, 0.76);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(212, 175, 106, 0.28);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  color: #F8FAFC;
+}
+
+.glass-panel-light {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(148, 163, 184, 0.40);
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+  color: #0F172A;
+}
+
+/* Executive Top Navigation Tabs with Dark/Light Support */
+.top-nav-tab {
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  font-weight: 700;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.theme-glass-dark .top-nav-tab {
+  color: #c8b085;
+}
+.theme-glass-dark .top-nav-tab:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.06);
+}
+.theme-glass-dark .top-nav-tab-active {
+  background: linear-gradient(180deg, #d4af6a 0%, #b8924b 100%);
+  color: #121722 !important;
+  border-color: #d4af6a;
+  box-shadow: 0 2px 10px rgba(212, 175, 106, 0.35);
+}
+
+.theme-glass-light .top-nav-tab {
+  color: #475569;
+}
+.theme-glass-light .top-nav-tab:hover {
+  color: #0f172a;
+  background: #f1f5f9;
+}
+.theme-glass-light .top-nav-tab-active {
+  background: #fef3c7;
+  color: #92400e !important;
+  border-color: #d97706;
+  box-shadow: 0 1px 4px rgba(217, 119, 6, 0.2);
+}
+
+/* ========================================================================= */
+/* EDITORIAL IVORY & DEEP BOTANICAL FOREST DESIGN SYSTEM                     */
+/* ========================================================================= */
+
+.bg-botanical-dark { background-color: #141D18; }
+.bg-botanical-hero { background-color: #18241E; }
+.bg-canvas-ivory { background-color: #F6F4EE; }
+.bg-card-white { background-color: #FFFFFF; }
+.bg-sage-strip { background-color: #EBF0EC; }
+.bg-champagne-gold { background-color: #D8BE8B; }
+
+.text-botanical-dark { color: #141D18; }
+.text-champagne-gold { color: #D8BE8B; }
+.text-muted-editorial { color: #57655B; }
+
+.border-stone-editorial { border-color: #E3E1D8; }
+
+/* Status Badges */
+.status-pill-green {
+  background-color: #DCFCE7;
+  color: #15803D;
+  border: 1px solid #86EFAC;
+}
+
+.status-pill-orange {
+  background-color: #FEF3C7;
+  color: #B45309;
+  border: 1px solid #FDE68A;
+}
+
+.status-pill-red {
+  background-color: #FEE2E2;
+  color: #B91C1C;
+  border: 1px solid #FCA5A5;
+}
+
+/* Custom Sleek Scrollbar */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: #D1D5DB transparent;
+}
+.dark .scrollbar-thin {
+  scrollbar-color: #2D3A31 transparent;
+}
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #D1D5DB;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #9CA3AF;
+}
+
+.dark-custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #2D3A31;
+}
+.dark-custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #3D4F43;
+}
+
+/* Micro-Animations & Interactive Transitions */
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-slide-up,
+.animate-fade-slide-up {
+  animation: fadeSlideUp 220ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes scorePulse {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 6px rgba(216, 190, 139, 0.6));
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.score-pulse {
+  animation: scorePulse 350ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px -2px rgba(0, 0, 0, 0.08);
+}
+.dark .hover-lift:hover {
+  box-shadow: 0 6px 20px -2px rgba(0, 0, 0, 0.35);
+}
+
+/* Smooth Accordion Details Transitions */
+details > summary {
+  transition: background-color 0.18s ease;
+}
+details[open] > summary {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+details > summary::-webkit-details-marker {
+  display: none;
+}
+@keyframes accordionDown {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+details[open] > div {
+  animation: accordionDown 200ms ease-out forwards;
+}
+
+/* Notebook Ruled Lines & Book Spine Gradient */
+.notebook-ruled-lines {
+  background-image: repeating-linear-gradient(
+    transparent,
+    transparent 19px,
+    rgba(148, 163, 184, 0.25) 20px
+  );
+  line-height: 20px;
+}
+
+.spine-curl-gradient {
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.45) 0%,
+    rgba(0, 0, 0, 0.12) 20%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(0, 0, 0, 0.12) 80%,
+    rgba(0, 0, 0, 0.45) 100%
+  );
+}
+
+/* Sticky Stacking Overlap-Fade Section */
+.sticky-stack-card {
+  position: sticky;
+  top: 4.5rem;
+  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease-out;
+}
+
+
+
+

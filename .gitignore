@@ -1,0 +1,50 @@
+# Environment Variables & Secrets (CRITICAL: Never commit API keys!)
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+
+# Python & Virtual Environments
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+ENV/
+*.egg-info/
+.pytest_cache/
+
+# Node.js & Frontend Build Outputs
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+.vite/
+
+# SQLite Databases & Local Storage
+*.db
+*.sqlite
+*.sqlite3
+backend/*.db
+backend/*.sqlite3
+
+# Uploaded Files & Temporary Assets
+backend/uploads/*
+!backend/uploads/.gitkeep
+Dataset/
+scratch/
+*.tmp
+*.log
+
+# OS & Editor Artifacts
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+backend/data/mendeley_dataset/Corrected_Pdf/
+backend/data/mendeley_dataset/Student_Pdf/
+backend/tests/*.pdf
