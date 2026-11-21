@@ -1,4 +1,5 @@
 import React, { useState, useRef, useMemo, useEffect } from 'react';
+import { apiUrl } from '../config';
 
 // Helper to extract clean and real rubric criteria from an answer
 export const getRubricCriteria = (ans) => {
@@ -186,7 +187,7 @@ export default function EvaluationWorkspaceView({
     if (!sub?.id) return;
     setIsSavingMeta(true);
     try {
-      const res = await fetch(`/api/submissions/${sub.id}/metadata`, {
+      const res = await fetch(apiUrl(`/api/submissions/${sub.id}/metadata`), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -582,8 +583,8 @@ export default function EvaluationWorkspaceView({
   const resolvedPages = useMemo(() => {
     const getPageUrl = (p) => {
       if (!p) return '';
-      if (typeof p === 'string') return p;
-      return p.clahe_url || p.original_url || p.url || '';
+      if (typeof p === 'string') return apiUrl(p);
+      return apiUrl(p.clahe_url || p.original_url || p.url || '');
     };
 
     if (Array.isArray(sub.pages) && sub.pages.length > 0) {
@@ -599,11 +600,11 @@ export default function EvaluationWorkspaceView({
       if (urls.length > 0) return urls;
     }
     if (sub.enhanced_image_url || sub.original_image_url) {
-      return [sub.enhanced_image_url || sub.original_image_url];
+      return [apiUrl(sub.enhanced_image_url || sub.original_image_url)];
     }
     if (sub.id) {
       return Array.from({ length: sub.total_pages || 1 }, (_, i) =>
-        `/api/sheets/${sub.id}/render-page?page=${i + 1}&variant=clahe`
+        apiUrl(`/api/sheets/${sub.id}/render-page?page=${i + 1}&variant=clahe`)
       );
     }
     return [];
@@ -1107,7 +1108,7 @@ export default function EvaluationWorkspaceView({
                       onError={(e) => {
                         e.currentTarget.onerror = null;
                         if (sub.id) {
-                          e.currentTarget.src = `/api/sheets/${sub.id}/render-page?page=${pIdx + 1}&variant=clahe`;
+                          e.currentTarget.src = apiUrl(`/api/sheets/${sub.id}/render-page?page=${pIdx + 1}&variant=clahe`);
                         }
                       }}
                     />
@@ -1241,11 +1242,11 @@ export default function EvaluationWorkspaceView({
                     {(() => {
                       const qpUrls = (Array.isArray(sub.question_paper_pages) && sub.question_paper_pages.length > 0)
                         ? sub.question_paper_pages
-                        : [sub.question_paper_url || "/uploads/question_papers/cs502_ml_qp.png"];
+                        : [sub.question_paper_url || apiUrl("/uploads/question_papers/cs502_ml_qp.png")];
                       return qpUrls.map((qUrl, qIdx) => (
                         <img
                           key={qIdx}
-                          src={qUrl}
+                          src={apiUrl(qUrl)}
                           alt={`Question Paper Page ${qIdx + 1}`}
                           className="max-w-full w-[600px] rounded-lg border border-stone-300 shadow-md bg-white block mb-4"
                           onError={() => {

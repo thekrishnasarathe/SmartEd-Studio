@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiUrl } from '../config';
 
 export default function AdminView({
   submissions = [],
@@ -123,7 +124,7 @@ export default function AdminView({
   const [backendStatus, setBackendStatus] = useState('checking'); // 'online' | 'offline'
 
   useEffect(() => {
-    fetch('/api/exams')
+    fetch(apiUrl('/api/exams'))
       .then((r) => {
         if (r.ok) setBackendStatus('online');
         else setBackendStatus('offline');

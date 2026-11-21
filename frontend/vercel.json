@@ -4,12 +4,12 @@
   "outputDirectory": "dist",
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "https://smarted-backend.onrender.com/api/$1"
+      "source": "/api/:path*",
+      "destination": "https://smarted-studio.onrender.com/api/:path*"
     },
     {
-      "source": "/uploads/(.*)",
-      "destination": "https://smarted-backend.onrender.com/uploads/$1"
+      "source": "/uploads/:path*",
+      "destination": "https://smarted-studio.onrender.com/uploads/:path*"
     },
     {
       "source": "/(.*)",

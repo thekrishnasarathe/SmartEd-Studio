@@ -23,6 +23,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
+    allow_origin_regex=r"^https?://.*",
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
@@ -236,13 +237,18 @@ def render_sheet_page(sheet_id: int, page: int = 1, variant: str = "original"):
             if cand_pdf.exists() and cand_pdf.stat().st_size > 0:
                 try:
                     import pypdfium2 as pdfium
+                    import gc
                     doc = pdfium.PdfDocument(str(cand_pdf))
-                    p_idx = max(0, min(page - 1, len(doc) - 1))
-                    page_obj = doc[p_idx]
-                    rendered_pil = page_obj.render(scale=2.0).to_pil()
-                    out_pdf_render = UPLOADS_DIR / f"pdf_render_{sub.id}_p{page}_{variant}.png"
-                    rendered_pil.save(str(out_pdf_render))
-                    return FileResponse(str(out_pdf_render), media_type="image/png")
+                    try:
+                        p_idx = max(0, min(page - 1, len(doc) - 1))
+                        page_obj = doc[p_idx]
+                        rendered_pil = page_obj.render(scale=1.5).to_pil()
+                        out_pdf_render = UPLOADS_DIR / f"pdf_render_{sub.id}_p{page}_{variant}.png"
+                        rendered_pil.save(str(out_pdf_render))
+                        return FileResponse(str(out_pdf_render), media_type="image/png")
+                    finally:
+                        doc.close()
+                        gc.collect()
                 except Exception as ex_pdf:
                     logging.getLogger(__name__).warning("PDF on the fly render failed: %s", ex_pdf)
 

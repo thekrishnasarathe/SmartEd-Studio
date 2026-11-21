@@ -248,24 +248,21 @@
 .animate-parchment-flip-1 {
   transform-origin: left center;
   transform-style: preserve-3d;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+  -webkit-transform-style: preserve-3d;
   animation: parchmentPageFlip1 3.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
 }
 
 .animate-parchment-flip-2 {
   transform-origin: left center;
   transform-style: preserve-3d;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+  -webkit-transform-style: preserve-3d;
   animation: parchmentPageFlip2 3.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
 }
 
 .animate-parchment-flip-3 {
   transform-origin: left center;
   transform-style: preserve-3d;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+  -webkit-transform-style: preserve-3d;
   animation: parchmentPageFlip3 3.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
 }
 

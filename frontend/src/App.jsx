@@ -7,6 +7,7 @@ import CohortInsightsView from './components/CohortInsightsView.jsx';
 import LandingPageView from './pages/LandingPageView.jsx';
 import AdminView from './pages/AdminView.jsx';
 import React, { useState, useEffect } from 'react';
+import { apiUrl } from './config.js';
 import { DEFAULT_SUBMISSIONS } from './defaultSubmissions.js';
 
 // =========================================================================
@@ -116,12 +117,23 @@ function mapBackendSubmissionToUi(beSub, idx = 0) {
     const pageCount = beSub.total_pages || (Array.isArray(beSub.pages) ? beSub.pages.length : 1);
     pages = Array.from({ length: pageCount }).map((_, pIdx) => ({
       page_number: pIdx + 1,
-      original_url: `/api/sheets/${beSub.id}/render-page?page=${pIdx + 1}&variant=original`,
-      clahe_url: `/api/sheets/${beSub.id}/render-page?page=${pIdx + 1}&variant=clahe`,
-      binary_url: `/api/sheets/${beSub.id}/render-page?page=${pIdx + 1}&variant=binary`,
+      original_url: apiUrl(`/api/sheets/${beSub.id}/render-page?page=${pIdx + 1}&variant=original`),
+      clahe_url: apiUrl(`/api/sheets/${beSub.id}/render-page?page=${pIdx + 1}&variant=clahe`),
+      binary_url: apiUrl(`/api/sheets/${beSub.id}/render-page?page=${pIdx + 1}&variant=binary`),
       deskew_angle: 0.0,
       processing_time_ms: 120.0,
     }));
+  } else {
+    pages = (pages || []).map((p) => {
+      if (typeof p === 'string') return apiUrl(p);
+      return {
+        ...p,
+        original_url: p.original_url ? apiUrl(p.original_url) : '',
+        clahe_url: p.clahe_url ? apiUrl(p.clahe_url) : '',
+        binary_url: p.binary_url ? apiUrl(p.binary_url) : '',
+        corrected_url: p.corrected_url ? apiUrl(p.corrected_url) : '',
+      };
+    });
   }
 
   let cleanQpUrl = beSub.question_paper_url || (beSub.exam && beSub.exam.question_paper_url) || null;
@@ -144,11 +156,11 @@ function mapBackendSubmissionToUi(beSub, idx = 0) {
     stamp_text: beSub.status === 'verified' ? 'COMPLETED' : 'INK STAMP',
     subject: beSub.subject || 'University Assessment',
     grading_mode: beSub.grading_mode || 'reference_guided',
-    original_image_url: beSub.original_image_url,
-    enhanced_image_url: beSub.enhanced_image_url,
-    binary_image_url: beSub.binary_image_url,
-    question_paper_url: cleanQpUrl,
-    question_paper_pages: beSub.question_paper_pages || (beSub.exam && beSub.exam.question_paper_pages) || [],
+    original_image_url: beSub.original_image_url ? apiUrl(beSub.original_image_url) : null,
+    enhanced_image_url: beSub.enhanced_image_url ? apiUrl(beSub.enhanced_image_url) : null,
+    binary_image_url: beSub.binary_image_url ? apiUrl(beSub.binary_image_url) : null,
+    question_paper_url: cleanQpUrl ? apiUrl(cleanQpUrl) : null,
+    question_paper_pages: (beSub.question_paper_pages || (beSub.exam && beSub.exam.question_paper_pages) || []).map((u) => apiUrl(u)),
     question_paper_text: beSub.question_paper_text || (beSub.exam && beSub.exam.question_paper_text) || '',
     total_ai_marks: beSub.total_ai_marks ?? null,
     total_final_marks: beSub.total_final_marks ?? null,
@@ -721,7 +733,7 @@ export default function App() {
     const curAns = currentSub?.answers?.find((a) => a.question_number === qNum);
     if (curAns && curAns.id && typeof curAns.id === 'number') {
       try {
-        await fetch(`/api/evaluations/${curAns.id}/verify`, {
+        await fetch(apiUrl(`/api/evaluations/${curAns.id}/verify`), {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -763,7 +775,7 @@ export default function App() {
     const curAns = currentSub?.answers?.find((a) => a.question_number === qNum);
     if (curAns && curAns.id && typeof curAns.id === 'number') {
       try {
-        await fetch(`/api/evaluations/${curAns.id}/verify`, {
+        await fetch(apiUrl(`/api/evaluations/${curAns.id}/verify`), {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ final_marks: nextScore }),
@@ -789,7 +801,7 @@ export default function App() {
 
     if (ans.id && typeof ans.id === 'number') {
       try {
-        await fetch(`/api/evaluations/${ans.id}/verify`, {
+        await fetch(apiUrl(`/api/evaluations/${ans.id}/verify`), {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -812,7 +824,7 @@ export default function App() {
     let updatedSuggested = ans.suggested_marks;
     if (ans.id && typeof ans.id === 'number') {
       try {
-        const res = await fetch(`/api/evaluations/${ans.id}/verify`, {
+        const res = await fetch(apiUrl(`/api/evaluations/${ans.id}/verify`), {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -872,7 +884,7 @@ export default function App() {
   const handleSaveTeacherComment = async (ans, comment) => {
     if (ans.id && typeof ans.id === 'number') {
       try {
-        await fetch(`/api/evaluations/${ans.id}/verify`, {
+        await fetch(apiUrl(`/api/evaluations/${ans.id}/verify`), {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ teacher_comment: comment }),
@@ -884,7 +896,7 @@ export default function App() {
   const handleDeleteSubmission = async (e, subId) => {
     if (e) e.stopPropagation();
     try {
-      await fetch(`/api/submissions/${subId}`, { method: 'DELETE' });
+      await fetch(apiUrl(`/api/submissions/${subId}`), { method: 'DELETE' });
     } catch (err) {
       console.warn('Backend delete failed, removing locally:', err);
     }
@@ -900,7 +912,7 @@ export default function App() {
 
   const handleClearAllQueries = async () => {
     try {
-      await fetch('/api/submissions?keep_core=false', { method: 'DELETE' });
+      await fetch(apiUrl('/api/submissions?keep_core=false'), { method: 'DELETE' });
     } catch (err) {
       console.warn('Backend clear failed, clearing locally:', err);
     }
@@ -913,7 +925,7 @@ export default function App() {
     try {
       const promises = (currentSub?.answers || []).map((a) => {
         if (a.id && typeof a.id === 'number') {
-          return fetch(`/api/evaluations/${a.id}/verify`, {
+          return fetch(apiUrl(`/api/evaluations/${a.id}/verify`), {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -1000,7 +1012,7 @@ export default function App() {
   const handleAutoSynthesizeRubric = async () => {
     setIsSynthesizingRubric(true);
     try {
-      const res = await fetch('/api/rubrics/auto-synthesize', {
+      const res = await fetch(apiUrl('/api/rubrics/auto-synthesize'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1046,13 +1058,13 @@ export default function App() {
           .filter(Boolean),
         model_answer: rubricModelAnswer,
       };
-      const res = await fetch(`/api/exams/${exam.id}/rubric-retroactive`, {
+      const res = await fetch(apiUrl(`/api/exams/${exam.id}/rubric-retroactive`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
       if (!res.ok) {
-        const putRes = await fetch(`/api/exams/${exam.id}/rubric-retroactive`, {
+        const putRes = await fetch(apiUrl(`/api/exams/${exam.id}/rubric-retroactive`), {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
@@ -1086,7 +1098,7 @@ export default function App() {
         ocr_confidence_threshold: Number(settingsData.confidence_threshold),
         divergence_threshold: Number(settingsData.divergence_threshold),
       };
-      const res = await fetch('/api/settings', {
+      const res = await fetch(apiUrl('/api/settings'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -1104,7 +1116,7 @@ export default function App() {
   };
 
   const fetchSettings = () => {
-    fetch('/api/settings')
+    fetch(apiUrl('/api/settings'))
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (data) {
@@ -1127,7 +1139,7 @@ export default function App() {
 
   const fetchBenchmarkMetrics = () => {
     setLoadingBenchmark(true);
-    fetch('/api/benchmark/metrics')
+    fetch(apiUrl('/api/benchmark/metrics'))
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (data && data.metrics) {
@@ -1139,7 +1151,7 @@ export default function App() {
   };
 
   const fetchExamsAndSubs = () => {
-    fetch('/api/exams')
+    fetch(apiUrl('/api/exams'))
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((examsData) => {
         if (examsData && examsData.length > 0) {
@@ -1161,7 +1173,7 @@ export default function App() {
       })
       .catch(() => {});
 
-    fetch('/api/submissions')
+    fetch(apiUrl('/api/submissions'))
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((subsData) => {
         if (subsData && subsData.length > 0) {
@@ -1177,7 +1189,7 @@ export default function App() {
       })
       .catch(() => {});
 
-    fetch('/api/exams/library')
+    fetch(apiUrl('/api/exams/library'))
       .then((r) => (r.ok ? r.json() : []))
       .then((lib) => {
         if (Array.isArray(lib) && lib.length > 0) {
@@ -1419,7 +1431,7 @@ export default function App() {
         weight_semantic: parseFloat(settingsData.weight_semantic),
         weight_rubric: parseFloat(settingsData.weight_rubric),
       };
-      const res = await fetch('/api/settings', {
+      const res = await fetch(apiUrl('/api/settings'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -1450,7 +1462,7 @@ export default function App() {
         required_keywords: keywordsList,
         model_answer: rubricModelAnswer,
       };
-      const res = await fetch(`/api/exams/${exam.id}/questions/${rubricQ}/rubric`, {
+      const res = await fetch(apiUrl(`/api/exams/${exam.id}/questions/${rubricQ}/rubric`), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -1469,13 +1481,13 @@ export default function App() {
   };
 
   const handleExportCohortCsv = () => {
-    window.open(`/api/exams/${exam.id}/export-csv`, '_blank');
+    window.open(apiUrl(`/api/exams/${exam.id}/export-csv`), '_blank');
     showToast('Exported Mendeley Benchmark Audit Ledger (.CSV)');
   };
 
   const handleExportSubmissionPdf = (subId) => {
     const idToUse = subId || currentSub.id;
-    window.open(`/api/sheets/${idToUse}/export-pdf`, '_blank');
+    window.open(apiUrl(`/api/sheets/${idToUse}/export-pdf`), '_blank');
     showToast('Exported Official Scriptorium Scorecard (.PDF)');
   };
 
@@ -1484,7 +1496,7 @@ export default function App() {
     setStrictness(levelNum);
     if (!currentSub || !currentSub.id) return;
     try {
-      const res = await fetch(`/api/submissions/${currentSub.id}/apply-strictness`, {
+      const res = await fetch(apiUrl(`/api/submissions/${currentSub.id}/apply-strictness`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ strictness: levelNum }),
@@ -1518,21 +1530,26 @@ export default function App() {
       `Inscribing Mendeley Benchmark Cohort (${zipCohortLimit} Scholars)... Loading Stage 1 OpenCV Scans & Stage 3 Ridge AI Ledger`
     );
 
+    const abortController = new AbortController();
+    const timeoutId = setTimeout(() => {
+      abortController.abort();
+    }, 35000); // 35-second hard timeout guard
+
     try {
       // First attempt: Dedicated zero-argument benchmark cohort loader
       let res = await fetch(
-        `/api/benchmark/load-cohort?limit=${zipCohortLimit}&ocr_provider=${encodeURIComponent(ocrEngine)}`,
-        { method: 'POST' }
+        apiUrl(`/api/benchmark/load-cohort?limit=${zipCohortLimit}&ocr_provider=${encodeURIComponent(ocrEngine)}`),
+        { method: 'POST', signal: abortController.signal }
       );
 
       // Second attempt fallback: /api/exams/{examId}/ingest-any?use_cached_dataset=true
       if (!res.ok) {
         const examId = exam.id || 1;
         res = await fetch(
-          `/api/exams/${examId}/ingest-any?use_cached_dataset=true&limit=${zipCohortLimit}&ocr_provider=${encodeURIComponent(
+          apiUrl(`/api/exams/${examId}/ingest-any?use_cached_dataset=true&limit=${zipCohortLimit}&ocr_provider=${encodeURIComponent(
             ocrEngine
-          )}`,
-          { method: 'POST' }
+          )}`),
+          { method: 'POST', signal: abortController.signal }
         );
       }
 
@@ -1562,9 +1579,12 @@ export default function App() {
       }
     } catch (err) {
       console.warn('Primary benchmark load encountered issue, attempting graceful recovery:', err);
+      if (err?.name === 'AbortError') {
+        showToast('⏱️ Mendeley benchmark load timed out. Please retry.');
+      }
       // Fallback 1: Try fetching existing submissions from /api/submissions
       try {
-        const subRes = await fetch('/api/submissions');
+        const subRes = await fetch(apiUrl('/api/submissions'), { signal: abortController.signal });
         if (subRes.ok) {
           const allSubs = await subRes.json();
           if (allSubs && allSubs.length > 0) {
@@ -1603,18 +1623,18 @@ export default function App() {
           avatar_gender: num % 2 === 0 ? 'female' : 'male',
           queue_status_text: num <= 3 ? 'Completed' : 'In Scrutiny',
           stamp_text: num <= 3 ? 'COMPLETED' : 'INK STAMP',
-          original_image_url: `/uploads/${stem}_original.png`,
-          enhanced_image_url: `/uploads/${stem}_clahe.png`,
-          binary_image_url: `/uploads/${stem}_binary.png`,
+          original_image_url: apiUrl(`/uploads/${stem}_original.png`),
+          enhanced_image_url: apiUrl(`/uploads/${stem}_clahe.png`),
+          binary_image_url: apiUrl(`/uploads/${stem}_binary.png`),
           total_ai_marks: 38.5,
           total_final_marks: 39.0,
           evaluated_by_provider: 'Stage 3 Calibrated Ridge (auto)',
           pages: [1, 2, 3, 4].map((p) => ({
             page_number: p,
-            original_url: `/uploads/${stem}_p${p}_original.png`,
-            clahe_url: `/uploads/${stem}_p${p}_clahe.png`,
-            binary_url: `/uploads/${stem}_p${p}_binary.png`,
-            corrected_url: `/uploads/${stem}_corrected_p${p}.png`,
+            original_url: apiUrl(`/uploads/${stem}_p${p}_original.png`),
+            clahe_url: apiUrl(`/uploads/${stem}_p${p}_clahe.png`),
+            binary_url: apiUrl(`/uploads/${stem}_p${p}_binary.png`),
+            corrected_url: apiUrl(`/uploads/${stem}_corrected_p${p}.png`),
             deskew_angle: 0.0,
             processing_time_ms: 12.0,
           })),
@@ -1752,7 +1772,7 @@ export default function App() {
     }, 75000); // 75-second hard timeout guard
 
     try {
-      const uploadPromise = fetch(`/api/exams/${examId}/ingest-any`, {
+      const uploadPromise = fetch(apiUrl(`/api/exams/${examId}/ingest-any`), {
         method: 'POST',
         body: formData,
         signal: abortController.signal,
@@ -2016,7 +2036,7 @@ export default function App() {
     const annotationsToSave = currentSub.stamps || [];
     try {
       localStorage.setItem('smarted_annotations_' + currentSub.id, JSON.stringify(annotationsToSave));
-      await fetch(`/api/submissions/${currentSub.id}/annotations`, {
+      await fetch(apiUrl(`/api/submissions/${currentSub.id}/annotations`), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ annotations: annotationsToSave }),
@@ -2059,7 +2079,7 @@ export default function App() {
     );
 
     try {
-      await fetch(`/api/submissions/${currentSub.id}/batch-marks`, {
+      await fetch(apiUrl(`/api/submissions/${currentSub.id}/batch-marks`), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ marks: overviewMarks }),
@@ -2120,7 +2140,7 @@ export default function App() {
       currentSub?.answers?.find((a) => a.question_number === activeQuestion) || currentSub?.answers?.[0];
     if (curAns && curAns.id && typeof curAns.id === 'number') {
       try {
-        await fetch(`/api/evaluations/${curAns.id}/verify`, {
+        await fetch(apiUrl(`/api/evaluations/${curAns.id}/verify`), {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -2556,42 +2576,93 @@ export default function App() {
                   <div className="absolute inset-x-0 h-1.5 bg-gradient-to-r from-transparent via-[#ffd700] to-transparent shadow-[0_0_12px_#ffd700] animate-gold-exam-laser pointer-events-none" />
                 </div>
 
-                {/* Flipping Parchment Leaf 1 */}
+                {/* Flipping Parchment Leaf 1 (Double-Sided 3D Card) */}
                 <div
-                  style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
-                  className="absolute top-0 right-0 w-1/2 h-full bg-[#F6F4EE] border-y-2 border-r border-[#D8BE8B] p-2.5 rounded-r-sm animate-parchment-flip-1 shadow-md pointer-events-none text-[#18241E] notebook-ruled-lines"
+                  style={{ transformStyle: 'preserve-3d', WebkitTransformStyle: 'preserve-3d' }}
+                  className="absolute top-0 right-0 w-1/2 h-full animate-parchment-flip-1 pointer-events-none"
                 >
+                  {/* Front Face (visible 0° to 90°) */}
                   <div
                     style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
-                    className="text-[8px] font-mono text-stone-500 pt-1"
+                    className="absolute inset-0 bg-[#F6F4EE] border-y-2 border-r border-[#D8BE8B] p-2.5 rounded-r-sm shadow-md text-[#18241E] notebook-ruled-lines"
                   >
-                    Section A · Questions
+                    <div className="text-[8px] font-mono text-stone-500 pt-1">
+                      Section A · Questions
+                    </div>
+                  </div>
+                  {/* Back Face (visible 90° to 180°, upright, never mirrored) */}
+                  <div
+                    style={{
+                      transform: 'rotateY(180deg)',
+                      WebkitTransform: 'rotateY(180deg)',
+                      backfaceVisibility: 'hidden',
+                      WebkitBackfaceVisibility: 'hidden',
+                    }}
+                    className="absolute inset-0 bg-[#FAF8F5] border-y-2 border-l border-[#D8BE8B] p-2.5 rounded-l-sm shadow-md text-[#18241E] notebook-ruled-lines"
+                  >
+                    <div className="text-[8px] font-mono text-stone-500 pt-1 text-right">
+                      Section A (cont.)
+                    </div>
                   </div>
                 </div>
 
-                {/* Flipping Parchment Leaf 2 */}
+                {/* Flipping Parchment Leaf 2 (Double-Sided 3D Card) */}
                 <div
-                  style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
-                  className="absolute top-0 right-0 w-1/2 h-full bg-[#FBF9F4] border-y-2 border-r border-[#D8BE8B] p-2.5 rounded-r-sm animate-parchment-flip-2 shadow-md pointer-events-none text-[#18241E] notebook-ruled-lines"
+                  style={{ transformStyle: 'preserve-3d', WebkitTransformStyle: 'preserve-3d' }}
+                  className="absolute top-0 right-0 w-1/2 h-full animate-parchment-flip-2 pointer-events-none"
                 >
+                  {/* Front Face (visible 0° to 90°) */}
                   <div
                     style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
-                    className="text-[8px] font-mono text-stone-500 pt-2"
+                    className="absolute inset-0 bg-[#FBF9F4] border-y-2 border-r border-[#D8BE8B] p-2.5 rounded-r-sm shadow-md text-[#18241E] notebook-ruled-lines"
                   >
-                    Section B · Handwriting
+                    <div className="text-[8px] font-mono text-stone-500 pt-2">
+                      Section B · Handwriting
+                    </div>
+                  </div>
+                  {/* Back Face (visible 90° to 180°, upright, never mirrored) */}
+                  <div
+                    style={{
+                      transform: 'rotateY(180deg)',
+                      WebkitTransform: 'rotateY(180deg)',
+                      backfaceVisibility: 'hidden',
+                      WebkitBackfaceVisibility: 'hidden',
+                    }}
+                    className="absolute inset-0 bg-[#FAF8F5] border-y-2 border-l border-[#D8BE8B] p-2.5 rounded-l-sm shadow-md text-[#18241E] notebook-ruled-lines"
+                  >
+                    <div className="text-[8px] font-mono text-stone-500 pt-2 text-right">
+                      Section B (cont.)
+                    </div>
                   </div>
                 </div>
 
-                {/* Flipping Parchment Leaf 3 */}
+                {/* Flipping Parchment Leaf 3 (Double-Sided 3D Card) */}
                 <div
-                  style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
-                  className="absolute top-0 right-0 w-1/2 h-full bg-[#EDEAE3] border-y-2 border-r border-[#D8BE8B] p-2.5 rounded-r-sm animate-parchment-flip-3 shadow-md pointer-events-none text-[#18241E] notebook-ruled-lines"
+                  style={{ transformStyle: 'preserve-3d', WebkitTransformStyle: 'preserve-3d' }}
+                  className="absolute top-0 right-0 w-1/2 h-full animate-parchment-flip-3 pointer-events-none"
                 >
+                  {/* Front Face (visible 0° to 90°) */}
                   <div
                     style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
-                    className="text-[8px] font-mono text-stone-500 pt-3"
+                    className="absolute inset-0 bg-[#EDEAE3] border-y-2 border-r border-[#D8BE8B] p-2.5 rounded-r-sm shadow-md text-[#18241E] notebook-ruled-lines"
                   >
-                    Part II · Derivations
+                    <div className="text-[8px] font-mono text-stone-500 pt-3">
+                      Part II · Derivations
+                    </div>
+                  </div>
+                  {/* Back Face (visible 90° to 180°, upright, never mirrored) */}
+                  <div
+                    style={{
+                      transform: 'rotateY(180deg)',
+                      WebkitTransform: 'rotateY(180deg)',
+                      backfaceVisibility: 'hidden',
+                      WebkitBackfaceVisibility: 'hidden',
+                    }}
+                    className="absolute inset-0 bg-[#FAF8F5] border-y-2 border-l border-[#D8BE8B] p-2.5 rounded-l-sm shadow-md text-[#18241E] notebook-ruled-lines"
+                  >
+                    <div className="text-[8px] font-mono text-stone-500 pt-3 text-right">
+                      Part II (cont.)
+                    </div>
                   </div>
                 </div>
 
@@ -3479,7 +3550,7 @@ export default function App() {
                 {/* Download Official Report PDF */}
                 <button
                   onClick={() => {
-                    const pdfUrl = `/api/sheets/${currentSub.id}/export-pdf`;
+                    const pdfUrl = apiUrl(`/api/sheets/${currentSub.id}/export-pdf`);
                     window.open(pdfUrl, '_blank');
                   }}
                   className="px-4 py-1.5 rounded-lg bg-gradient-to-r from-[#d4af6a] via-[#f5e6c8] to-[#c4a468] hover:brightness-110 text-[#13171e] font-cinzel text-xs font-bold shadow-md flex items-center gap-1.5 cursor-pointer transition-all"
@@ -4079,15 +4150,15 @@ export default function App() {
                       <div className="flex-1 min-h-0 w-full overflow-y-auto overflow-x-auto p-2 bg-[#0c1017] rounded border border-[#1f2633] flex justify-center items-start custom-scroll">
                         <img
                           src={
-                            currentSub?.pages?.[pIndex]?.clahe_url ||
-                            currentSub?.pages?.[pIndex]?.original_url ||
-                            `/api/sheets/${currentSub.id}/render-page?page=${pIndex + 1}&variant=clahe`
+                            apiUrl(currentSub?.pages?.[pIndex]?.clahe_url) ||
+                            apiUrl(currentSub?.pages?.[pIndex]?.original_url) ||
+                            apiUrl(`/api/sheets/${currentSub.id}/render-page?page=${pIndex + 1}&variant=clahe`)
                           }
                           alt="Student Answer Copy"
                           className="w-full max-w-full h-auto object-contain rounded shadow-lg border border-[#2d3646]"
                           onError={(e) => {
                             e.currentTarget.onerror = null;
-                            e.currentTarget.src = `/api/sheets/${currentSub.id}/render-page?page=${pIndex + 1}&variant=clahe`;
+                            e.currentTarget.src = apiUrl(`/api/sheets/${currentSub.id}/render-page?page=${pIndex + 1}&variant=clahe`);
                           }}
                         />
                       </div>

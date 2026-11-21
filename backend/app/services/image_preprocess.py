@@ -50,12 +50,17 @@ class ImagePreprocessor:
     def pdf_bytes_to_pil_images(pdf_bytes: bytes, scale: float = 2.0) -> List[Image.Image]:
         """Renders every page of a PDF document to PIL RGB images using pypdfium2."""
         import pypdfium2 as pdfium
+        import gc
         doc = pdfium.PdfDocument(pdf_bytes)
         images = []
-        for i in range(len(doc)):
-            page = doc[i]
-            bitmap = page.render(scale=scale)
-            images.append(bitmap.to_pil().convert("RGB"))
+        try:
+            for i in range(len(doc)):
+                page = doc[i]
+                bitmap = page.render(scale=scale)
+                images.append(bitmap.to_pil().convert("RGB"))
+        finally:
+            doc.close()
+            gc.collect()
         return images
 
     @classmethod
@@ -237,13 +242,13 @@ class ImagePreprocessor:
         bgr = cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
 
         if fast:
-            # Fast upload mode: uncompressed level-0 PNG write, fast CLAHE and thresholding for sub-second page processing
-            cv2.imwrite(str(orig_path), bgr, [cv2.IMWRITE_PNG_COMPRESSION, 0])
+            # Fast upload mode: level-1 PNG write, fast CLAHE and thresholding for sub-second page processing
+            cv2.imwrite(str(orig_path), bgr, [cv2.IMWRITE_PNG_COMPRESSION, 1])
             gray = cv2.cvtColor(bgr, cv2.COLOR_BGR2GRAY)
             clahe = cv2.createCLAHE(clipLimit=2.2, tileGridSize=(8, 8)).apply(gray)
-            cv2.imwrite(str(enhanced_path), clahe, [cv2.IMWRITE_PNG_COMPRESSION, 0])
+            cv2.imwrite(str(enhanced_path), clahe, [cv2.IMWRITE_PNG_COMPRESSION, 1])
             _, binary_clean = cv2.threshold(clahe, 175, 255, cv2.THRESH_BINARY)
-            cv2.imwrite(str(binary_path), binary_clean, [cv2.IMWRITE_PNG_COMPRESSION, 0])
+            cv2.imwrite(str(binary_path), binary_clean, [cv2.IMWRITE_PNG_COMPRESSION, 1])
             angle = 0.0
         else:
             # Full heavy offline preprocessing

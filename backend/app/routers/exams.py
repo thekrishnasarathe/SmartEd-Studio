@@ -1,3 +1,4 @@
+import gc
 import io
 import json
 import logging
@@ -472,20 +473,25 @@ async def save_uploaded_question_paper(
             extracted_pages_text = []
             try:
                 import pypdfium2 as pdfium
+                import gc
                 doc = pdfium.PdfDocument(content)
-                for i in range(len(doc)):
-                    page = doc[i]
-                    p_img = page.render(scale=1.5).to_pil()
-                    page_img_name = f"qp_{ts}_{stem}_p{i+1}.png"
-                    p_img.save(qp_dir / page_img_name, "PNG")
-                    page_urls.append(f"/uploads/question_papers/{page_img_name}")
+                try:
+                    for i in range(len(doc)):
+                        page = doc[i]
+                        p_img = page.render(scale=1.5).to_pil()
+                        page_img_name = f"qp_{ts}_{stem}_p{i+1}.png"
+                        p_img.save(qp_dir / page_img_name, "PNG")
+                        page_urls.append(f"/uploads/question_papers/{page_img_name}")
 
-                    try:
-                        p_txt = page.get_textpage().get_text_range()
-                        if p_txt:
-                            extracted_pages_text.append(p_txt)
-                    except Exception:
-                        pass
+                        try:
+                            p_txt = page.get_textpage().get_text_range()
+                            if p_txt:
+                                extracted_pages_text.append(p_txt)
+                        except Exception:
+                            pass
+                finally:
+                    doc.close()
+                    gc.collect()
             except Exception as e:
                 logger.error("Error rendering PDF question paper: %s", e)
 
@@ -642,12 +648,22 @@ def create_or_get_dedicated_exam_for_upload(
                         f.file.seek(pos)
                     if c_bytes:
                         import pypdfium2 as pdfium
+                        import gc
                         doc = pdfium.PdfDocument(c_bytes)
-                        detected_page_count = max(detected_page_count, len(doc))
+                        try:
+                            detected_page_count = max(detected_page_count, len(doc))
+                        finally:
+                            doc.close()
+                            gc.collect()
                 elif isinstance(f, (str, Path)) and Path(f).exists():
                     import pypdfium2 as pdfium
+                    import gc
                     doc = pdfium.PdfDocument(Path(f).read_bytes())
-                    detected_page_count = max(detected_page_count, len(doc))
+                    try:
+                        detected_page_count = max(detected_page_count, len(doc))
+                    finally:
+                        doc.close()
+                        gc.collect()
             except Exception:
                 pass
 
@@ -1086,6 +1102,7 @@ async def upload_batch_student_sheets(
         t_db_start = time.perf_counter()
         db.flush()
         created_subs.append(sub)
+        gc.collect()
 
     t_commit_start = time.perf_counter()
     db.commit()
@@ -1270,12 +1287,17 @@ def extract_text_from_uploaded_doc(file: Optional[Any], text_override: Optional[
     if ext == ".pdf":
         try:
             import pypdfium2 as pdfium
+            import gc
             doc = pdfium.PdfDocument(content_bytes)
             pages_txt = []
-            for i in range(len(doc)):
-                txt = doc[i].get_textpage().get_text_range().strip()
-                if txt:
-                    pages_txt.append(txt)
+            try:
+                for i in range(len(doc)):
+                    txt = doc[i].get_textpage().get_text_range().strip()
+                    if txt:
+                        pages_txt.append(txt)
+            finally:
+                doc.close()
+                gc.collect()
             full_txt = "\n\n".join(pages_txt).strip()
             if len(full_txt) >= 20:
                 return full_txt
