@@ -1322,11 +1322,11 @@ def parse_question_paper_with_vision(image_paths: List[Path], text_content: Opti
                     img = img.convert("RGB")
                 img = ImageEnhance.Contrast(img).enhance(1.1)
                 w, h = img.size
-                if max(w, h) > 1024:
-                    scale = 1024.0 / float(max(w, h))
-                    img = img.resize((int(w * scale), int(h * scale)), Image.Resampling.LANCZOS)
+                if max(w, h) > 900:
+                    scale = 900.0 / float(max(w, h))
+                    img = img.resize((int(w * scale), int(h * scale)), Image.Resampling.BILINEAR)
                 buf = io.BytesIO()
-                img.save(buf, format="JPEG", quality=75, optimize=True)
+                img.save(buf, format="JPEG", quality=72, optimize=True)
                 b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
 
             prompt = """You are a senior university examination controller.
@@ -1387,6 +1387,7 @@ Return STRICT JSON only matching this format:
                         "temperature": 0.1,
                         "maxOutputTokens": 8192,
                         "responseMimeType": "application/json",
+                        "thinkingConfig": {"thinkingBudget": 0},
                     },
                 }
                 http_headers = {"Content-Type": "application/json", "Connection": "close"}
@@ -1409,6 +1410,23 @@ Return STRICT JSON only matching this format:
                                     status_code = resp.status_code
                                     resp_json_fn = resp.json
                                     resp_text = resp.text
+
+                            # If model returns 400 due to thinkingConfig, retry immediately without it
+                            if status_code == 400 and "thinkingConfig" in payload.get("generationConfig", {}):
+                                p_no_think = {
+                                    "contents": payload["contents"],
+                                    "generationConfig": {
+                                        k: v for k, v in payload["generationConfig"].items() if k != "thinkingConfig"
+                                    },
+                                }
+                                try:
+                                    import requests
+                                    resp = requests.post(gemini_url, json=p_no_think, headers=http_headers, timeout=(10, 60))
+                                    status_code = resp.status_code
+                                    resp_json_fn = resp.json
+                                    resp_text = resp.text
+                                except Exception:
+                                    pass
 
                             if status_code == 200:
                                 raw_txt = resp_json_fn()["candidates"][0]["content"]["parts"][0]["text"]

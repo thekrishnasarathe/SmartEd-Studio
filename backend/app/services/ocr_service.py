@@ -159,7 +159,7 @@ class OCRService:
                 w, h = img.size
                 if max(w, h) > max_dim:
                     scale = float(max_dim) / float(max(w, h))
-                    img = img.resize((int(w * scale), int(h * scale)), Image.Resampling.LANCZOS)
+                    img = img.resize((int(w * scale), int(h * scale)), Image.Resampling.BILINEAR)
                 buf = io.BytesIO()
                 img.save(buf, format="JPEG", quality=quality, optimize=True)
                 return base64.b64encode(buf.getvalue()).decode("utf-8")
@@ -1201,10 +1201,10 @@ class OCRService:
                 "provider": "None"
             }
 
-        # 2. Preprocess & resize all pages to max 900px JPEG quality 72 in memory (~80KB each, <800KB total)
+        # 2. Preprocess & resize all pages to max 768px JPEG quality 70 in memory (~45KB each, <450KB total)
         b64_pages: List[str] = []
         for p in page_paths:
-            b64_pages.append(cls._encode_image_b64(p, max_dim=900, quality=72))
+            b64_pages.append(cls._encode_image_b64(p, max_dim=768, quality=70))
 
         # 3. Construct Unified Batched Multimodal Prompt
         qp_summary = []
@@ -1304,6 +1304,7 @@ class OCRService:
                     "temperature": 0.1,
                     "maxOutputTokens": 8192,
                     "responseMimeType": "application/json",
+                    "thinkingConfig": {"thinkingBudget": 0},
                 },
             }
             http_headers = {"Content-Type": "application/json", "Connection": "close"}
@@ -1336,6 +1337,23 @@ class OCRService:
                                 status_code = resp.status_code
                                 resp_json_fn = resp.json
                                 resp_text = resp.text
+
+                        # If model returns 400 due to thinkingConfig, retry immediately without it
+                        if status_code == 400 and "thinkingConfig" in payload.get("generationConfig", {}):
+                            p_no_think = {
+                                "contents": payload["contents"],
+                                "generationConfig": {
+                                    k: v for k, v in payload["generationConfig"].items() if k != "thinkingConfig"
+                                },
+                            }
+                            try:
+                                import requests
+                                resp = requests.post(gemini_url, json=p_no_think, headers=http_headers, timeout=(10, 60))
+                                status_code = resp.status_code
+                                resp_json_fn = resp.json
+                                resp_text = resp.text
+                            except Exception:
+                                pass
 
                         if status_code == 200:
                             data = resp_json_fn()

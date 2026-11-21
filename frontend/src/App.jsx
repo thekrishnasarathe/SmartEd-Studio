@@ -1203,8 +1203,9 @@ export default function App() {
       .catch(() => {});
   };
 
-  // Attempt to fetch live data from backend when available
+  // Attempt to fetch live data from backend when available & silently wake up Render Free Tier
   useEffect(() => {
+    fetch(apiUrl('/api/health')).catch(() => {});
     fetchExamsAndSubs();
     fetchBenchmarkMetrics();
     fetchSettings();
@@ -1769,7 +1770,7 @@ export default function App() {
     const abortController = new AbortController();
     const timeoutId = setTimeout(() => {
       abortController.abort();
-    }, 75000); // 75-second hard timeout guard
+    }, 180000); // 180-second timeout guard for Render Free Tier spin-up + processing
 
     try {
       const uploadPromise = fetch(apiUrl(`/api/exams/${examId}/ingest-any`), {
@@ -1833,7 +1834,7 @@ export default function App() {
       clearTimeout(timeoutId);
       console.error('Ingestion error from backend:', err);
       if (err?.name === 'AbortError') {
-        showToast('⏱️ Evaluation timed out after 75s. Please check backend connection and retry.');
+        showToast('⏱️ Evaluation timed out after 180s. Please check backend connection and retry.');
       } else {
         const errMsg = err?.message || 'Check backend connection & API keys';
         showToast(`⚠️ Evaluation upload failed: ${errMsg}`);
