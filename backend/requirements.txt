@@ -14,3 +14,7 @@ pytest>=8.0.0
 # Optional heavy AI packages (auto-detected if installed; zero-cold-start fallback built-in):
 # google-genai>=0.3.0
 # sentence-transformers>=2.6.0
+
+requests>=2.31.0
+scipy>=1.13.0
+scikit-learn>=1.5.0
